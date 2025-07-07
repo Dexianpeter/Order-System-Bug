@@ -3,17 +3,15 @@
 #include "menu.h"
 #include "order.h"
 #define SHOPNAME "Happy"
+void PrintMainCommand();
 int main() {
+	printf("正在載入菜單");
 	MENU* menu = allocmenu();
 	ReadMenu(menu);
 	ORDER* order = allocOrder();
-	printf("====%s早餐店====\n", SHOPNAME);
+	printf("\r====%s早餐店====\n", SHOPNAME);
 	while (1) {
-		printf("選擇功能\n");
-		printf("(1)查看菜單\n");
-		printf("(2)開始點餐\n");
-		//printf("(3)下一位使用者點餐\n");
-		printf("(4)結束點餐\n");
+		PrintMainCommand();
 		int choise, UID = 0;
 		scanf("%d", &choise);
 		switch (choise) {
@@ -41,4 +39,12 @@ int main() {
 	free(menu);
 	free(order);
 	return 0;
+}
+
+void PrintMainCommand(){
+	printf("選擇功能\n");
+	printf("(1)查看菜單\n");
+	printf("(2)開始點餐\n");
+	//printf("(3)下一位使用者點餐\n");
+	printf("(4)結束點餐\n");
 }

@@ -40,7 +40,7 @@ int ReadDrinkMenu(MENU* menu);
 int ReadFoodMenu(MENU* menu);
 int ReadOtherMenu(MENU* menu);
 int ReadMenu(MENU* menu);
-int GetItemPrice(int ID, ITEM_TYPE t, MENU* menu);
+int GetItemPrice(int ID, ITEM_TYPE t, const MENU* menu);
 void PrintMenu(const MENU* menu);
 
 MENU* allocmenu() {
@@ -84,11 +84,12 @@ int ReadDrinkMenu(MENU* menu) {
 		int no, pricetmp;
 		char nametmp[MAX_NAME], in;
 		while (fscanf(f, "%d %s %d %c\n", &no, nametmp, &pricetmp, &in) == 4 && no <= MAXITEMNUM) {
-			menu->drink[no - 1].id = no - 1;
-			menu->drink[no - 1].price = pricetmp;
-			menu->drink[no - 1].tmp = in;
-			menu->drink[no - 1].type = ITEM_DRINK;
-			strcpy((menu->drink + no - 1)->name, nametmp);
+			no--;//轉回0-base
+			menu->drink[no].id = no;
+			menu->drink[no].price = pricetmp;
+			menu->drink[no].tmp = in;
+			menu->drink[no].type = ITEM_DRINK;
+			strcpy(menu->drink[no].name, nametmp);
 		}
 		fclose(f);
 		return 1;
@@ -104,25 +105,15 @@ int ReadFoodMenu(MENU* menu) {
 		int no, pricetmp;
 		char nametmp[MAX_NAME];
 		while (fscanf(f, "%d %s %d\n", &no, nametmp, &pricetmp) == 3 && no <= MAXITEMNUM) {
-			menu->food[no - 1].id = no - 1;
-			menu->food[no - 1].price = pricetmp;
-			menu->food[no - 1].type = ITEM_FOOD;
-			strcpy((menu->food + no - 1)->name, nametmp);
+			no--;//轉回0-base
+			menu->food[no].id = no;
+			menu->food[no].price = pricetmp;
+			menu->food[no].type = ITEM_FOOD;
+			strcpy(menu->food[no].name, nametmp);
 		}
 		fclose(f);
 		return 1;
 	}
-	/*menu->food[0].id = 0;
-	strcpy((menu->food[0]).name, "atestfood");
-	menu->food[0].price = 10;
-	menu->food[0].tmp = 0;
-	menu->food[0].type = ITEM_FOOD;
-
-	menu->food[1].id = 1;
-	strcpy((menu->food[1]).name, "btestfood");
-	menu->food[1].price = 20;
-	menu->food[1].tmp = 0;
-	menu->food[1].type = ITEM_FOOD;*/
 	return 1;
 }
 int ReadOtherMenu(MENU* menu) {
@@ -135,10 +126,11 @@ int ReadOtherMenu(MENU* menu) {
 		int no, pricetmp;
 		char nametmp[MAX_NAME];
 		while (fscanf(f, "%d %s %d\n", &no, nametmp, &pricetmp) == 3 && no <= MAXITEMNUM) {
-			menu->other[no - 1].id = no - 1;
-			menu->other[no - 1].price = pricetmp;
-			menu->other[no - 1].type = ITEM_OTHER;
-			strcpy((menu->other + no - 1)->name, nametmp);
+			no--;//轉回0-base
+			menu->other[no].id = no;
+			menu->other[no].price = pricetmp;
+			menu->other[no].type = ITEM_OTHER;
+			strcpy(menu->other[no].name, nametmp);
 		}
 		fclose(f);
 		return 1;
@@ -151,7 +143,7 @@ int ReadMenu(MENU* menu) {
 		ReadOtherMenu(menu))return 1;
 	else return 0;
 }
-int GetItemPrice(int ID, ITEM_TYPE t, MENU* menu) {
+int GetItemPrice(int ID, ITEM_TYPE t, const MENU* menu) {
 	switch (t) {
 	case ITEM_DRINK:
 		return (menu->drink[ID].price);
@@ -166,37 +158,22 @@ int GetItemPrice(int ID, ITEM_TYPE t, MENU* menu) {
 }
 void PrintMenu(const MENU *menu) {
 	puts("=============主餐=============");
-	printf("%-*s%-*s %-*s\n", NO_W, "NO",
-		NAME_W, "NAME",
-		PRICE_W, "PRICE");
+	printf("%-*s%-*s %-*s\n", NO_W, "NO", NAME_W, "NAME", PRICE_W, "PRICE");
 
 	for (int i = 0; i < MAXITEMNUM && menu->food[i].price != -1; ++i)
-		printf("%2d. %-*s%*d$\n",
-			i + 1,
-			NAME_W, menu->food[i].name,
-			PRICE_W, menu->food[i].price);
+		printf("%2d. %-*s%*d$\n", i + 1, NAME_W, menu->food[i].name, PRICE_W, menu->food[i].price);
 
 	puts("=============飲料=============");
-	printf("%-*s%-*s %-*s\n", NO_W, "NO",
-		NAME_W, "NAME",
-		PRICE_W, "PRICE");
+	printf("%-*s%-*s %-*s\n", NO_W, "NO", NAME_W, "NAME", PRICE_W, "PRICE");
 
 	for (int i = 0; i < MAXITEMNUM && menu->drink[i].price != -1; ++i)
-		printf("%2d. %-*s%*d$\n",
-			i + 1,
-			NAME_W, menu->drink[i].name,
-			PRICE_W, menu->drink[i].price);
+		printf("%2d. %-*s%*d$\n", i + 1, NAME_W, menu->drink[i].name, PRICE_W, menu->drink[i].price);
 
 	puts("=============配餐=============");
-	printf("%-*s%-*s %-*s\n", NO_W, "NO",
-		NAME_W, "NAME",
-		PRICE_W, "PRICE");
+	printf("%-*s%-*s %-*s\n", NO_W, "NO", NAME_W, "NAME", PRICE_W, "PRICE");
 
 	for (int i = 0; i < MAXITEMNUM && menu->other[i].price != -1; ++i)
-		printf("%2d. %-*s%*d$\n",
-			i + 1,
-			NAME_W, menu->other[i].name,
-			PRICE_W, menu->other[i].price);
+		printf("%2d. %-*s%*d$\n", i + 1, NAME_W, menu->other[i].name, PRICE_W, menu->other[i].price);
 }
 
 #endif

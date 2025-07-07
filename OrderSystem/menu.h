@@ -28,8 +28,8 @@ typedef struct {
 } MENU_ITEM;
 
 typedef struct MENU {
-	MENU_ITEM* drink;
 	MENU_ITEM* food;
+	MENU_ITEM* drink;
 	MENU_ITEM* other;
 }MENU;
 
@@ -40,7 +40,7 @@ int ReadDrinkMenu(MENU* menu);
 int ReadFoodMenu(MENU* menu);
 int ReadOtherMenu(MENU* menu);
 int ReadMenu(MENU* menu);
-int GetItemPrice(int ID, ITEM_TYPE t, MENU* menu);
+int GetItemPrice(int ID, ITEM_TYPE t, const MENU* menu);
 void PrintMenu(const MENU* menu);
 #endif
 
