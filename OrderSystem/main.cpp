@@ -19,19 +19,16 @@ int main() {
 			PrintMenu(menu);
 			break;
 		case 2:
-			UserOrder(UID, order, menu);
-			break;
-		/*case 3:
 			UserOrder(UID++, order, menu);
-			break;*/
-		case 4:
+			break;
+		case 3:
 			//SaveOrder(order);
 			break;
 		default:
 			printf("輸入錯誤\n");
 			break;
 		}
-		if (choise == 4) {
+		if (choise == 3) {
 			printf("感謝您使用本系統\n");
 			break;
 		}
@@ -43,8 +40,7 @@ int main() {
 
 void PrintMainCommand(){
 	printf("選擇功能\n");
-	printf("(1)查看菜單\n");
-	printf("(2)開始點餐\n");
-	//printf("(3)下一位使用者點餐\n");
-	printf("(4)結束點餐\n");
+	printf("輸入1: 查看菜單\n");
+	printf("輸入2: 新使用者開始點餐\n");
+	printf("輸入3: 結束點餐\n");
 }
