@@ -4,12 +4,12 @@
 #define __MENU_H__
 #define MAX_NAME 100
 #define MAXITEMNUM 20
-#define NO_W     4 
-#define NAME_W   20 
-#define PRICE_W  5
-#define DRINK_PATH "drink.txt" 
-#define FOOD_PATH "food.txt" 
-#define OTHER_PATH "other.txt" 
+#define NO_W 4 
+#define NAME_W 20 
+#define PRICE_W 5
+#define DRINK_PATH "./MenuData/drink.txt" 
+#define FOOD_PATH "./MenuData/food.txt" 
+#define OTHER_PATH "./MenuData/other.txt" 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -73,7 +73,6 @@ void freemenu(MENU* menu) {
 	free(menu->other);
 	free(menu);
 }
-
 int ReadDrinkMenu(MENU* menu) {
 	FILE *f = fopen(DRINK_PATH, "r");
 	if (!f) {
@@ -136,7 +135,6 @@ int ReadOtherMenu(MENU* menu) {
 		return 1;
 	}
 }
-
 int ReadMenu(MENU* menu) {
 	if (ReadDrinkMenu(menu) &&
 		ReadFoodMenu(menu) &&

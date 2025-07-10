@@ -1,2 +1,3 @@
 ﻿  order.cpp
+c:\users\user\desktop\ordersystem\ordersystem\order.cpp(352): warning C4715: 'ReadNum': 不是所有控制路徑都傳回值
   OrderSystem.vcxproj -> C:\Users\User\Desktop\OrderSystem\Debug\OrderSystem.exe

@@ -126,15 +126,21 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="order.cpp" />
+    <ClCompile Include="save.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="menu.h" />
     <ClInclude Include="order.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="save.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="drink.txt" />
-    <Text Include="food.txt" />
-    <Text Include="other.txt" />
+    <Text Include="MenuData\drink.txt" />
+    <Text Include="MenuData\food.txt" />
+    <Text Include="MenuData\other.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="OrderSystem.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

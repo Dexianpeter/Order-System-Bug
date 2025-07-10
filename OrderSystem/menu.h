@@ -4,9 +4,9 @@
 #define __MENU_H__
 #define MAX_NAME 100
 #define MAXITEMNUM 20
-#define NO_W     4 
-#define NAME_W   20 
-#define PRICE_W  5
+#define NO_W 4 
+#define NAME_W 20 
+#define PRICE_W 5
 #define DRINK_PATH "drink.txt" 
 #define FOOD_PATH "food.txt" 
 #define OTHER_PATH "other.txt" 

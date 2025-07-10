@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="資源檔\Menudata">
-      <UniqueIdentifier>{3662da2a-e86a-46c2-977c-022842047538}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="order.cpp">
@@ -27,6 +24,9 @@
     <ClCompile Include="main.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
+    <ClCompile Include="save.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="menu.h">
@@ -35,16 +35,27 @@
     <ClInclude Include="order.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
+    <ClInclude Include="save.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="drink.txt">
-      <Filter>資源檔\Menudata</Filter>
+    <Text Include="MenuData\drink.txt">
+      <Filter>資源檔</Filter>
     </Text>
-    <Text Include="food.txt">
-      <Filter>資源檔\Menudata</Filter>
+    <Text Include="MenuData\food.txt">
+      <Filter>資源檔</Filter>
     </Text>
-    <Text Include="other.txt">
-      <Filter>資源檔\Menudata</Filter>
+    <Text Include="MenuData\other.txt">
+      <Filter>資源檔</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="OrderSystem.rc">
+      <Filter>資源檔</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

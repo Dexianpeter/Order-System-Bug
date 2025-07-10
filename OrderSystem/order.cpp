@@ -6,31 +6,32 @@
 #include <stdlib.h>
 #include <string.h>
 #include "menu.h"
+#include "save.h"
 #define MAXUSERNUM 10
 #define MAXCARTITEMNUM 30
+#define MAXONCEORDERNUM 100
 typedef struct _USER {
 	int uid;
 	char* name;
 }USER;
 typedef struct _CARTLINE {
 	MENU_ITEM* item;
-	int qty;
 	_CARTLINE* Next;
 	_CARTLINE* Prev;
+	int qty;
 }CARTLINE;
 typedef struct _CART {
 	USER* user;
 	CARTLINE* InitCartLine;
-	int personalcost;
+	int cost;
 	int cap;
 }CART;
+typedef enum _OPERATE {
+	Add,
+	Del
+}OPERATE;
 
-typedef struct _ORDER {
-	CART* cart;
-	int allcost;
-}ORDER;
-
-void UserOrder(int UID, ORDER* order, const MENU* menu);
+void UserOrder(int UID, CART* cart, const MENU* menu);
 void GetUserName(int UID, CART* cart);
 void PrintOrderCommand();
 int ProcessOrder(int UID, CART* cart, const MENU* menu);
@@ -38,31 +39,25 @@ void AddItemtoCart(int ID, ITEM_TYPE t, CART* cart, const MENU* menu);
 void DeleteCartLine(int ID, ITEM_TYPE t, CART* cart);
 void PrintDelCommand();
 void PrintCart(int UID, CART* cart);
+int CheckLeave();
 
-ORDER* allocOrder();
-void freeOrder(ORDER* o);
+CART* allocCart();
+void freeCart(CART* c);
 CARTLINE* allocCartLine(CARTLINE* prev);
 CARTLINE* CreateInitCartLine();
 void freeCartLine(CARTLINE* c);
+int ReadNum(OPERATE o, int lb, int hb);//lb : lowerbond hb : higherbond
 
-
-
-void SaveCart(int UID, CART* cart);
-void SaveOrder(ORDER* order);
-
-void UserOrder(int UID, ORDER* order, const MENU* menu) {
-	CART* CurCart = order->cart + UID;
-	GetUserName(UID, CurCart);
+void UserOrder(int UID, CART* cart, const MENU* menu) {
+	GetUserName(UID, cart);
 	PrintOrderCommand();
-	ProcessOrder(UID, CurCart, menu);
+	ProcessOrder(UID, cart, menu);
 	//SaveCart(UID, CurCart);
 	return;
 }
 void GetUserName(int UID, CART* cart) {
 	printf("請輸入您的姓名(不可超過10個字):\n");
 	char nametmp[100];
-	int ch;
-	while ((ch = getchar()) != '\n' && ch != EOF) {}//清理緩衝區
 	while (1) {
 		scanf("%100s", nametmp);
 		if (strlen(nametmp) <= 41) break; //10*4+1 byte 限定中文10字內
@@ -139,7 +134,16 @@ int ProcessOrder(int UID, CART* cart, const MENU* menu) {
 			}
 			break;
 		case 7:
-			return -1;
+			printf("請再次確認您訂購的餐點:\n");
+			PrintCart(UID, cart);
+			if (CheckLeave() == 1) {
+				//for debug
+				printf("[Before Save] cart=%p head=%p next=%p\n",
+					cart, cart->InitCartLine,
+					cart->InitCartLine ? cart->InitCartLine->Next : NULL);
+				SaveCart(UID, cart);
+				return -1;
+			}
 			break;
 		case 8:
 			PrintOrderCommand();
@@ -173,7 +177,7 @@ void AddItemtoCart(int ID, ITEM_TYPE t, CART* cart, const MENU* menu) {
 		}
 		break;
 	}
-
+	int num = ReadNum(Add, 0, MAXONCEORDERNUM);
 	int AddItemCost;
 	bool found = false;
 	char NewItemName[MAX_NAME];
@@ -182,8 +186,8 @@ void AddItemtoCart(int ID, ITEM_TYPE t, CART* cart, const MENU* menu) {
 	if (CurCartLine) {
 		while (CurCartLine) {//點有在購物車的餐點
 			if (CurCartLine->item->type == t && CurCartLine->item->id == ID) {
-				CurCartLine->qty++;
-				AddItemCost = CurCartLine->item->price;
+				CurCartLine->qty += num;
+				AddItemCost = CurCartLine->item->price * num;
 				strcpy(NewItemName, CurCartLine->item->name);
 				found = true;
 				break;
@@ -197,7 +201,7 @@ void AddItemtoCart(int ID, ITEM_TYPE t, CART* cart, const MENU* menu) {
 		CurCartLine = tail->Next;
 		CurCartLine->item->id = ID;
 		CurCartLine->item->type = t;
-		CurCartLine->qty++;
+		CurCartLine->qty += num;
 		CurCartLine->item->price = GetItemPrice(CurCartLine->item->id, CurCartLine->item->type, menu);
 		cart->cap++;
 		switch (t) {
@@ -211,12 +215,11 @@ void AddItemtoCart(int ID, ITEM_TYPE t, CART* cart, const MENU* menu) {
 			strcpy(CurCartLine->item->name, menu->other[ID].name);
 			break;
 		}
-		AddItemCost = CurCartLine->item->price;
+		AddItemCost = CurCartLine->item->price * num;
 		strcpy(NewItemName, CurCartLine->item->name);
 	}
-	cart->personalcost += AddItemCost;//計算目前總額
-	printf("%s 加入購物車! 當前花費:%d\n", NewItemName, cart->personalcost);
-	found = false;
+	cart->cost += AddItemCost;//計算目前總額
+	printf("%s 加入購物車 %d 份! 當前花費: %d 元\n", NewItemName, num, cart->cost);
 	return;
 }
 void DeleteCartLine(int ID, ITEM_TYPE t, CART* cart) {
@@ -226,7 +229,10 @@ void DeleteCartLine(int ID, ITEM_TYPE t, CART* cart) {
 	while (!found && CurCartLine) {
 		if (CurCartLine->item->type == t && CurCartLine->item->id == ID) {
 			found = true;
-			CurCartLine->qty--;
+			int num = ReadNum(Del, 1, CurCartLine->qty);
+			CurCartLine->qty -= num;
+			cart->cost -= num * CurCartLine->item->price;
+			printf("%s 已從購物車中刪除 %d 份!目前花費 %d 元\n", CurCartLine->item->name, num, cart->cost);
 			if (CurCartLine->qty == 0) freeCartLine(CurCartLine);
 		}
 		CurCartLine = CurCartLine->Next;
@@ -243,57 +249,46 @@ void PrintCart(int UID, CART* cart) {
 	printf("%-3s %-4s %-6s %-*s %-3s %-7s %-7s\n",
 		"No", "編號", "類別", NAME_W, "名稱", "數量", "單價", "小計");
 
-	int total = 0, shown = 0;
+	int shown = 0;
 	CARTLINE* cl = cart->InitCartLine->Next;
 	int CartCap = cart->cap;
 	while (cl) {
 		int lineCost = cl->item->price * cl->qty;
-		total += lineCost;
 
-		char itemName[20]; strcpy(itemName, cl->item->name);//取出要查看的數據
-		int showid = cl->item->id;							//取出要查看的數據
-		showid++;											//轉回1-base
-		ITEM_TYPE t = cl->item->type;						//取出要查看的數據
-		int ItemQty = cl->qty, ItemPrice = cl->item->price; //取出要查看的數據
+		ITEM_TYPE t = cl->item->type;
 
 		printf("%-3d %-4d %-6s %-*s %-3d %-7d %-7d\n",
 			++shown,//編號
-			showid,//食物編號
+			cl->item->id + 1,//食物編號
 			(t == ITEM_FOOD) ? "主食" : (t == ITEM_DRINK) ? "飲料" : "配餐",//type
-			NAME_W, itemName,//品名
-			ItemQty,//數量
-			ItemPrice,//price
+			NAME_W, cl->item->name,//品名
+			cl->qty,//數量
+			cl->item->price,//price
 			lineCost);
 
 		cl = cl->Next;
 	}
 	if (shown == 0) printf("（目前購物車空空如也）\n");
-	printf("------------------------------------------------\n");
-	printf("小計：%d 元\n\n", total);
+	printf("-----------------------------------------------------------\n");
+	printf("小計：%d 元\n\n", cart->cost);
 }
-ORDER* allocOrder() {
-	ORDER* rt = (ORDER*)calloc(1, sizeof(ORDER));
-	rt->cart = (CART*)calloc(MAXUSERNUM, sizeof(CART));
-	for (int i = 0; i < MAXUSERNUM; i++) {
-		rt->cart[i].user = (USER*)calloc(1, sizeof(USER));
-		rt->cart[i].user->name = (char*)calloc(MAX_NAME, sizeof(char));
-		rt->cart[i].InitCartLine = CreateInitCartLine();
-	}
+CART* allocCart() {
+	CART* rt = (CART*)calloc(1, sizeof(CART));
+	rt->user = (USER*)calloc(1, sizeof(USER));
+	rt->user->name = (char*)calloc(MAX_NAME, sizeof(char));
+	rt->InitCartLine = CreateInitCartLine();
 	return rt;
 }
-void freeOrder(ORDER* o) {
-	for (int i = 0; i < MAXUSERNUM; i++) {
-		CARTLINE* c = o->cart[i].InitCartLine;
-		while (c) {
-			CARTLINE* tmp = c->Next;
-			freeCartLine(c);
-			c = tmp;
-		}
-		free(o->cart[i].user->name);
-		free(o->cart[i].user);
+void freeCart(CART* c) {
+	CARTLINE* cl = c->InitCartLine;
+	while (cl) {
+		CARTLINE* tmp = cl->Next;
+		freeCartLine(cl);
+		cl = tmp;
 	}
-	free(o->cart);
-	free(o);
+	free(c->user->name);
+	free(c->user);
+	free(c);
 }
 CARTLINE* CreateInitCartLine() {
 	CARTLINE* rt = (CARTLINE*)calloc(1, sizeof(CARTLINE));
@@ -318,16 +313,48 @@ void freeCartLine(CARTLINE* c) {
 	CARTLINE* n = c->Next;
 	if (p) p->Next = n;
 	if (n) n->Prev = p;
-	free(c->item->name);
-	free(c->item);
+	if (c->item) {
+		free(c->item->name);
+		free(c->item);
+	}
 	free(c);
 	return;
 }
 void PrintDelCommand() {
 	printf("請輸入要刪除的品項\n");
-	printf("(1)主食\n");
-	printf("(2)飲料\n");
-	printf("(3)配餐\n");
+	printf("(1) 主食 ");
+	printf("(2) 飲料 ");
+	printf("(3) 配餐 \n");
 }
-
+int ReadNum(OPERATE o, int lb, int hb) {//lowerbond higherbond
+	int num;
+	bool valid = false;
+	while (!valid) {
+		printf("請輸入數量\n");
+		scanf("%d", &num);
+		switch (o) {
+		case Add:
+			if (num >= lb && num <= hb) {
+				valid = true;
+				return num;
+			}
+			printf("請重新輸入，新增餐點時，只能增加1~%d份\n", MAXONCEORDERNUM);
+			break;
+		case Del:
+			if (num >= lb && num <= hb) {
+				valid = true;
+				return num;
+			}
+			printf("請重新輸入，該品項您只點了%d份\n", hb);
+			break;
+		}
+	}
+}
+int CheckLeave() {
+	printf("輸入1: 確認餐點並送出\n");
+	printf("輸入0: 繼續點餐\n");
+	int rt;
+	scanf("%d", &rt);
+	return rt;
+}
 #endif
