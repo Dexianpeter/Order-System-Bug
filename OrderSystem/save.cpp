@@ -1,4 +1,3 @@
-//BY NCKU CE 117 HSIAO,TE-HSIEN
 #define _CRT_SECURE_NO_WARNINGS
 #ifndef __SAVE_H__
 #define __SAVE_H__
@@ -30,12 +29,11 @@ void TimeStr(char *Dest, size_t len){
 	strftime(Dest, len, "%m%d_%H_%M_%S", &tmv);
 }
 void SaveCart(int UID, const CART* cart) {
-	//for debug
-	printf("[fun take Cart Before Save] cart=%p head=%p next=%p\n",
-		cart, cart->InitCartLine,
-		cart->InitCartLine ? cart->InitCartLine->Next : NULL);
 
-	char exePath[MAX_PATH];
+	printf("[SaveCart get cart] cart=%p head = %p next = %p\n",
+		cart, cart->InitCartLine, cart->InitCartLine->Next);
+
+	/*char exePath[MAX_PATH];
 	GetModuleFileNameA(NULL, exePath, MAX_PATH); // 取得 exe 完整路徑
 	PathRemoveFileSpecA(exePath); // 剝掉檔名，剩資料夾
 	PathRemoveFileSpecA(exePath); // 再剝一次，專案根目錄
@@ -96,5 +94,6 @@ void SaveCart(int UID, const CART* cart) {
 	}
 	fprintf(fp, "共%d項, 總計%d元\n", Qty, cart->cost);
 	fclose(fp);
+	*/
 }
 #endif 

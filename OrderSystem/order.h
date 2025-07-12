@@ -1,4 +1,3 @@
-//BY NCKU CE 117 HSIAO,TE-HSIEN
 #define _CRT_SECURE_NO_WARNINGS
 #ifndef __ORDER_H__
 #define __ORDER_H__

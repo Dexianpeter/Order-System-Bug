@@ -10,13 +10,6 @@ int main() {
 	ReadMenu(menu);
 	CART* cart = allocCart();
 
-	//cart->InitCartLine->Next = allocCartLine(cart->InitCartLine);
-
-	//printf("[Before Save] cart=%p head=%p next=%p\n",
-	//	cart, cart->InitCartLine,
-	//	cart->InitCartLine ? cart->InitCartLine->Next : NULL);
-	//SaveCart(0, cart);
-
 	printf("\r========%s早餐店========\n", SHOPNAME);
 	UserOrder(0, cart, menu);
 	printf("感謝您使用本系統\n");
@@ -24,4 +17,5 @@ int main() {
 	freeCart(cart);
 	system("pause");
 	return 0;
+	
 }
